@@ -351,7 +351,7 @@
 
     // Fetch temperature from OpenWeatherMap API
     async function getTemperature() {
-      const weatherApiKey = '982ed56de9847afa074edf4f0f2969ae'; // Your provided OpenWeatherMap API key
+      const weatherApiKey = '______________'; // Your provided OpenWeatherMap API key
       const city = 'Mumbai'; // Replace with your city (e.g., 'Mumbai', 'Delhi', etc.)
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`;
 
@@ -404,7 +404,7 @@
         const temperature = await getTemperature();
 
         // Call Gemini API
-        const geminiApiKey = 'AIzaSyAkUSNfKk836gf35tYump4dUxVGI_KHTxk'; // Your provided Google API key
+        const geminiApiKey = '_________________________________________-'; // Your provided Google API key
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
         const payload = {
           contents: [{
@@ -481,7 +481,7 @@
   // Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
-    apiKey: "AIzaSyCebtPo-wdlqvJ6Yp0ggUzrO-dOvE_hsr0",
+    apiKey: "gemini api",
     authDomain: "aidayplanner-df43c.firebaseapp.com",
     projectId: "aidayplanner-df43c",
     storageBucket: "aidayplanner-df43c.firebasestorage.app",
