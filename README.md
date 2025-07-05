@@ -32,7 +32,7 @@ AI Day Planner is a smart and aesthetic web app that helps you plan your day bas
 
 ## 🔮 Demo Preview
 
-![Demo Screenshot](https://drive.google.com/file/d/10VsFTEvRlN2y52i2kHwGth8vLYvIWIIV/view?usp=drivesdk) 
+![Demo video](https://drive.google.com/file/d/10VsFTEvRlN2y52i2kHwGth8vLYvIWIIV/view?usp=drivesdk) 
 
 ---
 
