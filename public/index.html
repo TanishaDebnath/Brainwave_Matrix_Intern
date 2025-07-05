@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day Planner</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #ffe6f0, #e0eafc);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="10"%3E%3Crect width="5" height="5" fill="%23e6e6e6"/%3E%3C/svg%3E');
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 850px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    h1 {
+      text-align: center;
+      font-family: 'Comic Sans MS', cursive;
+      color: #ff4081;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .section {
+      display: flex;
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+    .schedule, .side-panel {
+      background: #ffd1dc;
+      padding: 15px;
+      border-radius: 10px;
+      flex: 1;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      transition: background 0.3s;
+    }
+    .schedule-item:hover {
+      background: #ffebee;
+    }
+    .schedule-item input {
+      margin-right: 10px;
+      flex: 1;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .time {
+      width: 50px;
+      text-align: right;
+      margin-right: 10px;
+      color: #ff4081;
+    }
+    .side-panel div {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .notes {
+      background: #d1c4e9;
+      height: 120px;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      background: transparent;
+    }
+    .chat-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: #ff4081;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .chat-btn:hover {
+      transform: scale(1.1);
+    }
+    .chat-btn img {
+      width: 40px;
+      height: 40px;
+    }
+    .chatbox {
+      display: none;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 90%;
+      max-width: 320px;
+      max-height: 70vh;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      animation: slideUp 0.5s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .chatbox-header {
+      background: #ff4081;
+      color: #fff;
+      padding: 12px;
+      text-align: center;
+      font-size: 18px;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+    .chat-messages {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      font-size: 14px;
+      position: relative;
+      word-wrap: break-word;
+    }
+    .user-message {
+      background: #e0e0e0;
+      margin-left: auto;
+      align-self: flex-end;
+    }
+    .ai-message {
+      background: #d1c4e9;
+    }
+    .typing-indicator {
+      background: #d1c4e9;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      font-size: 14px;
+      position: relative;
+      display: flex;
+      gap: 4px;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: #666;
+      border-radius: 50%;
+      animation: typing 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    .timestamp {
+      font-size: 10px;
+      color: #666;
+      margin-top: 5px;
+      text-align: right;
+    }
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background: #fff;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      outline: none;
+      font-size: 14px;
+    }
+    .chat-input button {
+      padding: 8px 15px;
+      margin-left: 10px;
+      background: #ff4081;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 14px;
+    }
+    .chat-input button:hover {
+      background: #e91e63;
+    }
+    @media (max-width: 600px) {
+      .section {
+        flex-direction: column;
+      }
+      .chat-btn {
+        width: 50px;
+        height: 50px;
+      }
+      .chat-btn img {
+        width: 30px;
+        height: 30px;
+      }
+      .chatbox {
+        bottom: 70px;
+        right: 5%;
+        width: 90%;
+        max-height: 60vh;
+      }
+      .chat-messages {
+        padding: 10px;
+      }
+      .chat-input input, .chat-input button {
+        font-size: 12px;
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Day Planner 🌟</h1>
+    <div class="section">
+      <div class="schedule">
+        <h3>Schedule: ✨🌸✨</h3>
+        <div class="schedule-item"><span class="time">7:00</span><input type="text" placeholder="Morning task 🌞" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">8:00</span><input type="text" placeholder="Breakfast 🍳" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">9:00</span><input type="text" placeholder="Work 🎯" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">10:00</span><input type="text" placeholder="Meeting 🤝" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">11:00</span><input type="text" placeholder="Break ☕" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">12:00</span><input type="text" placeholder="Lunch 🍽️" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">13:00</span><input type="text" placeholder="Work 🎯" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">14:00</span><input type="text" placeholder="Task 🚀" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">15:00</span><input type="text" placeholder="Review 📝" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">16:00</span><input type="text" placeholder="Break ☕" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">17:00</span><input type="text" placeholder="Exercise 🏋️" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">18:00</span><input type="text" placeholder="Dinner 🍲" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">19:00</span><input type="text" placeholder="Relaxation 🎮" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">20:00</span><input type="text" placeholder="Family time 👨‍👩‍👧" oninput="saveTasks()"></div>
+        <div class="schedule-item"><span class="time">21:00</span><input type="text" placeholder="Wind down 🌙" oninput="saveTasks()"></div>
+        <div id="task-status" style="text-align: center; color: #ff4081; margin-top: 10px;"></div>
+      </div>
+      <div class="side-panel">
+        <div><input type="text" id="date-input" placeholder="Date: 📅" oninput="saveDate()"></div>
+        <div><input type="text" id="month-input" placeholder="Month: 🌸" oninput="saveDate()"></div>
+        <div class="reminders"><h4>Reminders 🌟</h4><textarea id="reminders-input" placeholder="Add reminders here... 📌" oninput="saveReminders()"></textarea></div>
+        <div class="goals"><h4>Goals 🌱</h4><textarea id="goals-input" placeholder="Set your goals... 🎯" oninput="saveGoals()"></textarea></div>
+        <div class="priorities"><h4>Top Priorities 🚀</h4><textarea id="priorities-input" placeholder="List priorities... ⭐" oninput="savePriorities()"></textarea></div>
+        <div class="notes"><h4>Notes: 📝</h4><textarea id="notes-input" placeholder="Add notes here... ✍️" oninput="saveNotes()"></textarea></div>
+      </div>
+    </div>
+  </div>
+  <div class="chat-btn" onclick="document.getElementById('chatbox').style.display='flex'">
+    <img src="https://img.icons8.com/color/48/000000/fairy.png" alt="Fairy Helper">
+  </div>
+  <div class="chatbox" id="chatbox">
+    <div class="chatbox-header">Fairy Helper ✨</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="chat-input" placeholder="Type your message... 🌸">
+      <button onclick="sendMessage()">Send 🚀</button>
+    </div>
+  </div>
+
+  <script>
+    // Load saved data
+    function loadData() {
+      document.getElementById('date-input').value = localStorage.getItem('date') || '';
+      document.getElementById('month-input').value = localStorage.getItem('month') || '';
+      document.getElementById('reminders-input').value = localStorage.getItem('reminders') || '';
+      document.getElementById('goals-input').value = localStorage.getItem('goals') || '';
+      document.getElementById('priorities-input').value = localStorage.getItem('priorities') || '';
+      document.getElementById('notes-input').value = localStorage.getItem('notes') || '';
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+      document.querySelectorAll('.schedule-item input').forEach((input, index) => {
+        input.value = tasks[index] || '';
+        if (input.value) input.classList.add('completed');
+      });
+      updateTaskStatus();
+    }
+
+    // Save data functions
+    function saveTasks() {
+      const tasks = {};
+      document.querySelectorAll('.schedule-item input').forEach((input, index) => {
+        tasks[index] = input.value;
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      updateTaskStatus();
+    }
+    function saveDate() {
+      localStorage.setItem('date', document.getElementById('date-input').value);
+      localStorage.setItem('month', document.getElementById('month-input').value);
+    }
+    function saveReminders() {
+      localStorage.setItem('reminders', document.getElementById('reminders-input').value);
+    }
+    function saveGoals() {
+      localStorage.setItem('goals', document.getElementById('goals-input').value);
+    }
+    function savePriorities() {
+      localStorage.setItem('priorities', document.getElementById('priorities-input').value);
+    }
+    function saveNotes() {
+      localStorage.setItem('notes', document.getElementById('notes-input').value);
+    }
+
+    // Update task completion status
+    function updateTaskStatus() {
+      const completedTasks = document.querySelectorAll('.schedule-item input.completed').length;
+      const totalTasks = document.querySelectorAll('.schedule-item input').length;
+      document.getElementById('task-status').textContent = `Completed: ${completedTasks}/${totalTasks} 🎉`;
+    }
+
+    // Notification function
+    function notify(message) {
+      if (Notification.permission === 'granted') {
+        new Notification('Fairy Reminder ✨', { body: message });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') new Notification('Fairy Reminder ✨', { body: message });
+        });
+      }
+    }
+
+    // Fetch temperature from OpenWeatherMap API
+    async function getTemperature() {
+      const weatherApiKey = '982ed56de9847afa074edf4f0f2969ae'; // Your provided OpenWeatherMap API key
+      const city = 'Mumbai'; // Replace with your city (e.g., 'Mumbai', 'Delhi', etc.)
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Weather API request failed');
+        const data = await response.json();
+        return `${data.main.temp}°C`; // Returns temperature in Celsius
+      } catch (error) {
+        console.error('Error fetching temperature:', error);
+        return '25°C'; // Fallback temperature
+      }
+    }
+
+    // Send message with API call and typing indicator
+    async function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (message) {
+        const messages = document.getElementById('chat-messages');
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user-message';
+        userMsg.innerHTML = `<div>${message}</div><div class="timestamp">${timestamp}</div>`;
+        messages.appendChild(userMsg);
+        input.value = '';
+
+        // Show typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        messages.appendChild(typingIndicator);
+        messages.scrollTop = messages.scrollHeight;
+
+        // Analyze schedule
+        let tasks = Array.from(document.querySelectorAll('.schedule-item input'))
+          .map((input, index) => {
+            const time = parseInt(input.parentElement.querySelector('.time').textContent);
+            return { time, task: input.value, completed: input.classList.contains('completed') };
+          })
+          .filter(t => t.task);
+
+        let pendingTasks = tasks.filter(t => !t.completed);
+        let completedTasks = tasks.filter(t => t.completed);
+        let reminders = document.getElementById('reminders-input').value.split('\n').filter(r => r.trim());
+
+        // Fetch temperature
+        const temperature = await getTemperature();
+
+        // Call Gemini API
+        const geminiApiKey = 'AIzaSyAkUSNfKk836gf35tYump4dUxVGI_KHTxk'; // Your provided Google API key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+        const payload = {
+          contents: [{
+            parts: [{
+              text: `Based on the current temperature ${temperature}, analyze the following schedule: Pending tasks: ${JSON.stringify(pendingTasks)}, Completed tasks: ${JSON.stringify(completedTasks)}. User message: ${message}. Provide a helpful response with a friendly tone, tailored to the schedule and weather. Current time is 05:04 AM IST on July 05, 2025.`
+            }]
+          }]
+        };
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) throw new Error('Gemini API request failed');
+          const data = await response.json();
+          const aiResponse = data.candidates[0].content.parts[0].text || "Fairy says: Hmm, I couldn't process that properly. Try again! 🌸";
+
+          // Remove typing indicator and add AI message
+          messages.removeChild(typingIndicator);
+          const aiMsg = document.createElement('div');
+          aiMsg.className = 'message ai-message';
+          aiMsg.innerHTML = `<div>${aiResponse}</div><div class="timestamp">${timestamp}</div>`;
+          messages.appendChild(aiMsg);
+
+          if (reminders.length) {
+            setTimeout(() => notify(`Reminder: ${reminders[0]}!`), 5000); // Notify after 5 seconds as a demo
+          }
+        } catch (error) {
+          messages.removeChild(typingIndicator);
+          const aiMsg = document.createElement('div');
+          aiMsg.className = 'message ai-message';
+          aiMsg.innerHTML = `<div>Fairy says: Oops! Something went wrong. Check your API key or try again later! 🌸</div><div class="timestamp">${timestamp}</div>`;
+          messages.appendChild(aiMsg);
+          console.error('Error with Gemini API:', error);
+        }
+
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    // Close chatbox on outside click
+    document.addEventListener('click', function(event) {
+      const chatbox = document.getElementById('chatbox');
+      const chatBtn = document.querySelector('.chat-btn');
+      if (!chatbox.contains(event.target) && !chatBtn.contains(event.target)) {
+        chatbox.style.display = 'none';
+      }
+    });
+
+    // Mark tasks as completed
+    document.querySelectorAll('.schedule-item input').forEach(input => {
+      input.addEventListener('change', function() {
+        if (this.value) this.classList.add('completed');
+        else this.classList.remove('completed');
+        saveTasks();
+      });
+    });
+
+    // Load data on page load
+    window.onload = loadData;
+  </script>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCebtPo-wdlqvJ6Yp0ggUzrO-dOvE_hsr0",
+    authDomain: "aidayplanner-df43c.firebaseapp.com",
+    projectId: "aidayplanner-df43c",
+    storageBucket: "aidayplanner-df43c.firebasestorage.app",
+    messagingSenderId: "499132348283",
+    appId: "1:499132348283:web:c24312955b274bcfe76fde",
+    measurementId: "G-Z9Z0VV3Q69"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</body>
+</html>
